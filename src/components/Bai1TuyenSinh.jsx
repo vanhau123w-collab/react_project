@@ -184,7 +184,7 @@ export default function Bai1TuyenSinh() {
               <div className="form-group">
                 <label>Giới tính</label>
                 <div className="radio-group">
-                  {['Nam', 'Nữ', 'Khác'].map(gt => (
+                  {['Nam', 'Nữ'].map(gt => (
                     <label key={gt} className="radio-label">
                       <input
                         type="radio"
@@ -259,7 +259,7 @@ export default function Bai1TuyenSinh() {
                   <option value="Đại học Khoa học Tự nhiên">Đại học Khoa học Tự nhiên</option>
                   <option value="Đại học Công nghệ Thông tin">Đại học Công nghệ Thông tin</option>
                   <option value="Đại học Kinh tế">Đại học Kinh tế</option>
-                  <option value="Đại học Sư phạm Kỹ thuật">Đại học Sư phạm Kỹ thuật</option>
+                  <option value="Đại học Công nghệ Kỹ thuật">Đại học Công nghệ Kỹ thuật</option>
                 </select>
                 {errors.truong && <div className="error-msg"><AlertCircle size={14} />{errors.truong}</div>}
               </div>

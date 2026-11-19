@@ -242,7 +242,7 @@ export default function Bai4ThemNhanVien() {
             <div className="form-group">
               <label>Giới tính</label>
               <div className="radio-group">
-                {['Nam', 'Nữ', 'Khác'].map(gt => (
+                {['Nam', 'Nữ'].map(gt => (
                   <label key={gt} className="radio-label">
                     <input
                       type="radio"
