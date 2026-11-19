@@ -141,7 +141,7 @@ export default function Bai1TuyenSinh() {
   };
 
   return (
-    <div className="card">
+    <div className="card single-column-card">
       <h2 className="card-title">
         <UserCheck className="text-primary" /> Bài 1: Web Đăng Ký Tuyển Sinh
       </h2>

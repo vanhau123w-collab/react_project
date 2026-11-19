@@ -1,8 +1,38 @@
 import React, { useState } from 'react';
-import { UserPlus, Plus, Trash2, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import {
+  UserPlus,
+  Plus,
+  Trash2,
+  CheckCircle,
+  AlertCircle,
+  RefreshCw,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Briefcase,
+  Globe,
+  Sparkles,
+  Check
+} from 'lucide-react';
 
 // Chức năng 9: Danh sách dữ liệu mẫu để kiểm tra trùng mã nhân viên
 const SAMPLE_EMPLOYEES = ['NV001', 'NV002', 'NV003', 'NV004', 'NV005'];
+
+// Định dạng tiền tệ VND
+const formatVND = (amount) => {
+  if (!amount || isNaN(amount)) return '—';
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+};
+
+// Lấy chữ viết tắt làm Avatar đại diện nếu chưa tải ảnh
+const getInitials = (name) => {
+  if (!name || !name.trim()) return 'NV';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
 
 // Chức năng 5: Cấu hình phòng ban và các chức vụ tương ứng
 const DEPARTMENTS = {
@@ -191,16 +221,13 @@ export default function Bai4ThemNhanVien() {
   };
 
   return (
-    <div className="card">
-      <h2 className="card-title">
-        <UserPlus className="text-primary" /> Bài 4: Web Thêm Mới Nhân Viên
-      </h2>
-      <p className="card-subtitle">Hồ sơ nhân sự, phân quyền phòng ban, kỹ năng & hợp đồng lao động</p>
-
-      <div className="alert-info">
-        Mã nhân viên đã có sẵn trong danh sách mẫu: <strong>{SAMPLE_EMPLOYEES.join(', ')}</strong> (Nhập thử các mã này để kiểm tra validate trùng lặp).
-      </div>
-
+    <div className="two-column-layout">
+      {/* CỘT TRÁI: FORM NHẬP LIỆU */}
+      <div className="card" style={{ marginBottom: 0 }}>
+        <h2 className="card-title">
+          <UserPlus size={22} /> Bài 4: Web Thêm Mới Nhân Viên
+        </h2>
+        <p className="card-subtitle">Hồ sơ nhân sự, phân quyền phòng ban, kỹ năng & hợp đồng lao động</p>
       <form onSubmit={handleSubmit}>
         {/* Thông tin cá nhân */}
         <fieldset className="form-section">
@@ -529,6 +556,313 @@ export default function Bai4ThemNhanVien() {
           </div>
         </div>
       )}
+      </div>
+
+      <aside className="sticky-preview">
+        <div className="employee-preview-card">
+          <div className="preview-top-bar">
+            <span className="preview-label">Thẻ Nhân Sự</span>
+            {savedData ? (
+              <span className="preview-status-pill saved">
+                <Check size={12} /> ĐÃ LƯU
+              </span>
+            ) : (
+              <span className="preview-status-pill live">
+               
+              </span>
+            )}
+          </div>
+
+          {/* Avatar & Thông tin cơ bản */}
+          <div className="preview-avatar-section">
+            <div className="preview-avatar-box">
+              {previewAnhUrl ? (
+                <img src={previewAnhUrl} alt="Avatar Preview" className="preview-avatar-img" />
+              ) : (
+                <span>{getInitials(formData.hoTen)}</span>
+              )}
+            </div>
+            <div className="preview-name-box">
+              <div className="preview-name">
+                {formData.hoTen.trim() || 'Họ và tên nhân sự'}
+              </div>
+              <div className="preview-role">{formData.chucVu}</div>
+              <div className="preview-dept">{formData.phongBan}</div>
+              <span className="preview-code-badge">
+                {formData.maNV.trim() ? formData.maNV.trim().toUpperCase() : 'NV---'}
+              </span>
+            </div>
+          </div>
+
+          {/* Quick Stats Grid */}
+          <div className="preview-stats-grid">
+            <div className="preview-stat-item">
+              <span className="preview-stat-label">Mức lương</span>
+              <span className="preview-stat-value">{formatVND(formData.mucLuong)}</span>
+            </div>
+            <div className="preview-stat-item">
+              <span className="preview-stat-label">Hợp đồng</span>
+              <span className="preview-stat-value" title={formData.loaiHopDong}>{formData.loaiHopDong}</span>
+            </div>
+            <div className="preview-stat-item">
+              <span className="preview-stat-label">Trạng thái</span>
+              <span className="preview-stat-value" title={formData.trangThai}>{formData.trangThai}</span>
+            </div>
+          </div>
+
+          {/* Danh sách thông tin chi tiết */}
+          <div className="preview-info-list">
+            <div className="preview-info-row">
+              <span className="preview-info-key"><Mail size={13} /> Email:</span>
+              <span className="preview-info-val">{formData.email.trim() || '—'}</span>
+            </div>
+            <div className="preview-info-row">
+              <span className="preview-info-key"><Phone size={13} /> Điện thoại:</span>
+              <span className="preview-info-val">{formData.soDienThoai.trim() || '—'}</span>
+            </div>
+            <div className="preview-info-row">
+              <span className="preview-info-key"><Calendar size={13} /> Ngày sinh:</span>
+              <span className="preview-info-val">
+                {formData.ngaySinh || '—'} {formData.gioiTinh ? `(${formData.gioiTinh})` : ''}
+              </span>
+            </div>
+            <div className="preview-info-row">
+              <span className="preview-info-key"><MapPin size={13} /> Địa chỉ:</span>
+              <span className="preview-info-val">{formData.diaChi.trim() || '—'}</span>
+            </div>
+            <div className="preview-info-row">
+              <span className="preview-info-key"><Briefcase size={13} /> Ngày bắt đầu:</span>
+              <span className="preview-info-val">{formData.ngayBatDau || '—'}</span>
+            </div>
+            {formData.loaiHopDong === 'Thời vụ' && (
+              <div className="preview-info-row">
+                <span className="preview-info-key"><Calendar size={13} /> Ngày kết thúc:</span>
+                <span className="preview-info-val" style={{ color: '#b45309' }}>
+                  {formData.ngayKetThuc || '(Chưa chọn)'}
+                </span>
+              </div>
+            )}
+            <div className="preview-info-row">
+              <span className="preview-info-key"><Globe size={13} /> Ngoại ngữ:</span>
+              <span className="preview-info-val">{formData.ngoaiNgu.trim() || '—'}</span>
+            </div>
+          </div>
+
+          {/* Kỹ năng chuyên môn */}
+          <div className="preview-subgroup-title">
+            Kỹ năng chuyên môn ({kyNang.length})
+          </div>
+          <div className="preview-pills-wrap">
+            {kyNang.length > 0 ? (
+              kyNang.map(s => (
+                <span key={s} className="preview-pill">{s}</span>
+              ))
+            ) : (
+              <span className="preview-pill-empty">Chưa chọn kỹ năng nào</span>
+            )}
+          </div>
+
+          {/* Chứng chỉ */}
+          <div className="preview-subgroup-title">
+            Chứng chỉ ({chungChi.length})
+          </div>
+          <div className="preview-pills-wrap">
+            {chungChi.length > 0 ? (
+              chungChi.map((c, i) => (
+                <span key={i} className="preview-pill">{c}</span>
+              ))
+            ) : (
+              <span className="preview-pill-empty">Chưa có chứng chỉ nào</span>
+            )}
+          </div>
+
+          {/* Dữ liệu mẫu kiểm tra trùng lặp */}
+          <div className="preview-sample-box">
+            <div className="preview-sample-title">Mã NV đã có (thử trùng lặp):</div>
+            <div>
+              {SAMPLE_EMPLOYEES.map(code => (
+                <button
+                  key={code}
+                  type="button"
+                  className="sample-code-chip"
+                  title={`Điền nhanh mã ${code} để kiểm tra validate trùng`}
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, maNV: code }));
+                    if (errors.maNV) setErrors(prev => ({ ...prev, maNV: '' }));
+                  }}
+                >
+                  {code}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {savedData && (
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              style={{ width: '100%', marginTop: '16px' }}
+              onClick={handleReset}
+            >
+              <RefreshCw size={14} /> Thêm Nhân Viên Khác
+            </button>
+          )}
+        </div>
+      </aside>
+      </div>
+
+      {/* CỘT PHẢI: CARD THỂ HIỆN THÔNG TIN NHÂN VIÊN (LIVE PREVIEW & SUMMARY) */}
+      <aside className="sticky-preview">
+        <div className="employee-preview-card">
+          <div className="preview-top-bar">
+            <span className="preview-label">Thẻ Nhân Sự</span>
+            {savedData ? (
+              <span className="preview-status-pill saved">
+                <Check size={12} /> ĐÃ LƯU
+              </span>
+            ) : (
+              <span className="preview-status-pill live">
+                <Sparkles size={12} /> LIVE PREVIEW
+              </span>
+            )}
+          </div>
+
+          {/* Avatar & Thông tin cơ bản */}
+          <div className="preview-avatar-section">
+            <div className="preview-avatar-box">
+              {previewAnhUrl ? (
+                <img src={previewAnhUrl} alt="Avatar Preview" className="preview-avatar-img" />
+              ) : (
+                <span>{getInitials(formData.hoTen)}</span>
+              )}
+            </div>
+            <div className="preview-name-box">
+              <div className="preview-name">
+                {formData.hoTen.trim() || 'Họ và tên nhân sự'}
+              </div>
+              <div className="preview-role">{formData.chucVu}</div>
+              <div className="preview-dept">{formData.phongBan}</div>
+              <span className="preview-code-badge">
+                {formData.maNV.trim() ? formData.maNV.trim().toUpperCase() : 'NV---'}
+              </span>
+            </div>
+          </div>
+
+          {/* Quick Stats Grid */}
+          <div className="preview-stats-grid">
+            <div className="preview-stat-item">
+              <span className="preview-stat-label">Mức lương</span>
+              <span className="preview-stat-value">{formatVND(formData.mucLuong)}</span>
+            </div>
+            <div className="preview-stat-item">
+              <span className="preview-stat-label">Hợp đồng</span>
+              <span className="preview-stat-value" title={formData.loaiHopDong}>{formData.loaiHopDong}</span>
+            </div>
+            <div className="preview-stat-item">
+              <span className="preview-stat-label">Trạng thái</span>
+              <span className="preview-stat-value" title={formData.trangThai}>{formData.trangThai}</span>
+            </div>
+          </div>
+
+          {/* Danh sách thông tin chi tiết */}
+          <div className="preview-info-list">
+            <div className="preview-info-row">
+              <span className="preview-info-key"><Mail size={13} /> Email:</span>
+              <span className="preview-info-val">{formData.email.trim() || '—'}</span>
+            </div>
+            <div className="preview-info-row">
+              <span className="preview-info-key"><Phone size={13} /> Điện thoại:</span>
+              <span className="preview-info-val">{formData.soDienThoai.trim() || '—'}</span>
+            </div>
+            <div className="preview-info-row">
+              <span className="preview-info-key"><Calendar size={13} /> Ngày sinh:</span>
+              <span className="preview-info-val">
+                {formData.ngaySinh || '—'} {formData.gioiTinh ? `(${formData.gioiTinh})` : ''}
+              </span>
+            </div>
+            <div className="preview-info-row">
+              <span className="preview-info-key"><MapPin size={13} /> Địa chỉ:</span>
+              <span className="preview-info-val">{formData.diaChi.trim() || '—'}</span>
+            </div>
+            <div className="preview-info-row">
+              <span className="preview-info-key"><Briefcase size={13} /> Ngày bắt đầu:</span>
+              <span className="preview-info-val">{formData.ngayBatDau || '—'}</span>
+            </div>
+            {formData.loaiHopDong === 'Thời vụ' && (
+              <div className="preview-info-row">
+                <span className="preview-info-key"><Calendar size={13} /> Ngày kết thúc:</span>
+                <span className="preview-info-val" style={{ color: '#b45309' }}>
+                  {formData.ngayKetThuc || '(Chưa chọn)'}
+                </span>
+              </div>
+            )}
+            <div className="preview-info-row">
+              <span className="preview-info-key"><Globe size={13} /> Ngoại ngữ:</span>
+              <span className="preview-info-val">{formData.ngoaiNgu.trim() || '—'}</span>
+            </div>
+          </div>
+
+          {/* Kỹ năng chuyên môn */}
+          <div className="preview-subgroup-title">
+            Kỹ năng chuyên môn ({kyNang.length})
+          </div>
+          <div className="preview-pills-wrap">
+            {kyNang.length > 0 ? (
+              kyNang.map(s => (
+                <span key={s} className="preview-pill">{s}</span>
+              ))
+            ) : (
+              <span className="preview-pill-empty">Chưa chọn kỹ năng nào</span>
+            )}
+          </div>
+
+          {/* Chứng chỉ */}
+          <div className="preview-subgroup-title">
+            Chứng chỉ ({chungChi.length})
+          </div>
+          <div className="preview-pills-wrap">
+            {chungChi.length > 0 ? (
+              chungChi.map((c, i) => (
+                <span key={i} className="preview-pill">{c}</span>
+              ))
+            ) : (
+              <span className="preview-pill-empty">Chưa có chứng chỉ nào</span>
+            )}
+          </div>
+
+          {/* Dữ liệu mẫu kiểm tra trùng lặp */}
+          <div className="preview-sample-box">
+            <div className="preview-sample-title">Mã NV đã có (thử trùng lặp):</div>
+            <div>
+              {SAMPLE_EMPLOYEES.map(code => (
+                <button
+                  key={code}
+                  type="button"
+                  className="sample-code-chip"
+                  title={`Điền nhanh mã ${code} để kiểm tra validate trùng`}
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, maNV: code }));
+                    if (errors.maNV) setErrors(prev => ({ ...prev, maNV: '' }));
+                  }}
+                >
+                  {code}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {savedData && (
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              style={{ width: '100%', marginTop: '16px' }}
+              onClick={handleReset}
+            >
+              <RefreshCw size={14} /> Thêm Nhân Viên Khác
+            </button>
+          )}
+        </div>
+      </aside>
     </div>
   );
 }

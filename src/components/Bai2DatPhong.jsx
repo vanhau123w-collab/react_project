@@ -1,5 +1,16 @@
 import React, { useState, useMemo } from 'react';
-import { BedDouble, Calendar, DollarSign, CheckCircle2, ArrowLeft } from 'lucide-react';
+import {
+  BedDouble,
+  Calendar,
+  DollarSign,
+  CheckCircle2,
+  ArrowLeft,
+  Printer,
+  RefreshCw,
+  Mail,
+  ShieldCheck,
+  Check
+} from 'lucide-react';
 
 const ROOM_TYPES = [
   { id: 'standard', name: 'Phòng Standard', price: 500000, desc: 'Phòng tiêu chuẩn, tiện nghi cơ bản' },
@@ -29,6 +40,7 @@ export default function Bai2DatPhong() {
 
   const [errors, setErrors] = useState({});
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(null);
 
   // Tính số đêm lưu trú (Chức năng 3)
   const soDem = useMemo(() => {
@@ -130,14 +142,179 @@ export default function Bai2DatPhong() {
     }
   };
 
+  const handlePaymentConfirm = () => {
+    const code = `HTL-${Math.floor(100000 + Math.random() * 900000)}`;
+    const orderTime = new Date().toLocaleString('vi-VN');
+    setBookingSuccess({
+      code,
+      orderTime,
+      ...formData,
+      calculation,
+      soDem
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleReset = () => {
+    setFormData({
+      hoTen: '',
+      soDienThoai: '',
+      email: '',
+      ngayNhan: '',
+      ngayTra: '',
+      loaiPhong: 'standard',
+      soLuongPhong: 1,
+      soNguoiLon: 1,
+      soTreEm: 0,
+      anSang: false,
+      duaDonSanBay: false,
+      giatUi: false
+    });
+    setIsConfirmed(false);
+    setBookingSuccess(null);
+    setErrors({});
+  };
+
   return (
-    <div className="card">
+    <div className="card single-column-card">
       <h2 className="card-title">
         <BedDouble className="text-primary" /> Bài 2: Web Đặt Phòng Khách Sạn
       </h2>
       <p className="card-subtitle">Hệ thống tính toán chi phí và xác nhận đặt phòng trực tuyến</p>
 
-      {!isConfirmed ? (
+      {bookingSuccess ? (
+        /* ======================================================== */
+        /* MÀN HÌNH THÔNG BÁO XÁC NHẬN ĐẶT PHÒNG THÀNH CÔNG         */
+        /* ======================================================== */
+        <div className="booking-success-view">
+          <div className="booking-success-header">
+            <div className="success-icon-badge">
+              <CheckCircle2 size={36} />
+            </div>
+            <span className="success-tag">XÁC NHẬN ĐẶT PHÒNG THÀNH CÔNG</span>
+            <h2 className="success-title">Cảm Ơn Quý Khách!</h2>
+            <p className="success-subtitle">
+              Đơn đặt phòng của quý khách <strong>{bookingSuccess.hoTen}</strong> đã được hệ thống xác nhận thanh toán thành công.
+            </p>
+          </div>
+
+          {/* Phiếu biên nhận khách sạn */}
+          <div className="receipt-card">
+            <div className="receipt-top">
+              <div>
+                <span className="receipt-label">MÃ ĐƠN ĐẶT PHÒNG</span>
+                <div className="receipt-code">{bookingSuccess.code}</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <span className="receipt-label">THỜI GIAN GIAO DỊCH</span>
+                <div className="receipt-time">{bookingSuccess.orderTime}</div>
+              </div>
+            </div>
+
+            <div className="receipt-divider"></div>
+
+            <div className="receipt-grid">
+              <div className="receipt-item">
+                <span className="receipt-item-key">Khách hàng</span>
+                <span className="receipt-item-val">{bookingSuccess.hoTen}</span>
+              </div>
+              <div className="receipt-item">
+                <span className="receipt-item-key">Số điện thoại</span>
+                <span className="receipt-item-val">{bookingSuccess.soDienThoai}</span>
+              </div>
+              <div className="receipt-item">
+                <span className="receipt-item-key">Email</span>
+                <span className="receipt-item-val">{bookingSuccess.email}</span>
+              </div>
+              <div className="receipt-item">
+                <span className="receipt-item-key">Hạng phòng</span>
+                <span className="receipt-item-val">
+                  {bookingSuccess.calculation.selectedRoom.name} ({formatVND(bookingSuccess.calculation.selectedRoom.price)}/đêm)
+                </span>
+              </div>
+              <div className="receipt-item">
+                <span className="receipt-item-key">Thời gian lưu trú</span>
+                <span className="receipt-item-val">
+                  {bookingSuccess.soDem} đêm ({bookingSuccess.ngayNhan} → {bookingSuccess.ngayTra})
+                </span>
+              </div>
+              <div className="receipt-item">
+                <span className="receipt-item-key">Quy mô phòng</span>
+                <span className="receipt-item-val">
+                  {bookingSuccess.soLuongPhong} phòng ({bookingSuccess.calculation.tongSoNguoi} khách)
+                </span>
+              </div>
+            </div>
+
+            {/* Dịch vụ gia tăng */}
+            <div className="receipt-services">
+              <span className="receipt-services-title">Dịch vụ đi kèm:</span>
+              <div className="receipt-services-tags">
+                {bookingSuccess.anSang && (
+                  <span className="receipt-service-tag">
+                    <Check size={12} style={{ display: 'inline', marginRight: 4 }} />
+                    Buffet ăn sáng ({formatVND(bookingSuccess.calculation.tienAnSang)})
+                  </span>
+                )}
+                {bookingSuccess.duaDonSanBay && (
+                  <span className="receipt-service-tag">
+                    <Check size={12} style={{ display: 'inline', marginRight: 4 }} />
+                    Đưa đón sân bay ({formatVND(bookingSuccess.calculation.tienDuaDon)})
+                  </span>
+                )}
+                {bookingSuccess.giatUi && (
+                  <span className="receipt-service-tag">
+                    <Check size={12} style={{ display: 'inline', marginRight: 4 }} />
+                    Giặt ủi ({formatVND(bookingSuccess.calculation.tienGiatUi)})
+                  </span>
+                )}
+                {!bookingSuccess.anSang && !bookingSuccess.duaDonSanBay && !bookingSuccess.giatUi && (
+                  <span className="receipt-service-none">Không sử dụng dịch vụ bổ sung</span>
+                )}
+              </div>
+            </div>
+
+            {/* Tổng tiền */}
+            <div className="receipt-total-bar">
+              <div>
+                <span className="receipt-total-label">Tổng thanh toán</span>
+                <span className="receipt-payment-status">● Đã thanh toán trực tuyến thành công</span>
+              </div>
+              <div className="receipt-total-amount">
+                {formatVND(bookingSuccess.calculation.tongTien)}
+              </div>
+            </div>
+          </div>
+
+          {/* Hộp hướng dẫn nhận phòng */}
+          <div className="booking-guidance-box">
+            <div className="guidance-title">
+              <Mail size={15} /> Hướng dẫn nhận phòng tại khách sạn:
+            </div>
+            <p>
+              Phiếu xác nhận và hướng dẫn check-in đã được gửi tới email <strong>{bookingSuccess.email}</strong>. Quý khách vui lòng cung cấp mã đơn <strong>{bookingSuccess.code}</strong> hoặc CCCD/Hộ chiếu tại quầy lễ tân khi nhận phòng (Thời gian nhận phòng từ 14:00).
+            </p>
+          </div>
+
+          {/* Nút hành động */}
+          <div className="actions-row" style={{ marginTop: '28px', justifyContent: 'center' }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => window.print()}
+            >
+              <Printer size={16} /> In Phiếu Xác Nhận
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleReset}
+            >
+              <RefreshCw size={16} /> Đặt Thêm Phòng Khác
+            </button>
+          </div>
+        </div>
+      ) : !isConfirmed ? (
         <form onSubmit={handleDatPhong}>
           {/* Thông tin khách hàng */}
           <fieldset className="form-section">
@@ -374,7 +551,7 @@ export default function Bai2DatPhong() {
             <button
               type="button"
               className="btn btn-success"
-              onClick={() => alert(`Đặt phòng thành công! Mã đơn: HTL-${Date.now().toString().slice(-6)}\nCảm ơn quý khách ${formData.hoTen}!`)}
+              onClick={handlePaymentConfirm}
             >
               <CheckCircle2 size={16} /> Xác Nhận Thanh Toán
             </button>
